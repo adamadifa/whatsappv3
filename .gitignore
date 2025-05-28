@@ -1,0 +1,74 @@
+# PHP specific
+vendor/
+composer.phar
+*.log
+.env
+
+# IDE specific
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.swp
+*.swo
+*~
+
+# Dependency directories
+node_modules/
+
+# Cache and logs
+/cache/
+/logs/
+*.cache
+
+# Configuration and sensitive files
+*.env
+*.env.*
+!.env.example
+config.php
+settings.php
+
+# Generated files
+/dist/
+/build/
+/coverage/
+
+# Debug files
+*.log
+*.sql
+*.sqlite
+debug.txt
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Session files
+sessions/
+*.sess
+
+# Upload directory
+/uploads/
+/media/
+/public/uploads/
+
+# Test files
+/phpunit.xml
+.phpunit.result.cache
+/logs/
+*.cache
+
+# Composer lock file (you might want to track this in some cases)
+# composer.lock

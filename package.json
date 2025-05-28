@@ -1,0 +1,32 @@
+{
+  "name": "whatsappgateway",
+  "version": "1.0.0",
+  "description": "WhatsApp Gateway menggunakan Baileys dengan dukungan multi-device",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": [
+    "whatsapp",
+    "baileys",
+    "api",
+    "gateway"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@hapi/boom": "^10.0.1",
+    "@whiskeysockets/baileys": "^6.4.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.5.0",
+    "node-fetch": "^3.3.2",
+    "pino": "^8.14.1",
+    "qrcode-terminal": "^0.12.0",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Gateway - QR Code</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+        }
+        h1 {
+            color: #128C7E;
+            margin-bottom: 1.5rem;
+        }
+        #qrcode {
+            margin: 2rem auto;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: inline-block;
+        }
+        #qrcode canvas {
+            display: block;
+            margin: 0 auto;
+        }
+        .status {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .connected {
+            color: #25D366;
+            background: rgba(37, 211, 102, 0.1);
+        }
+        .error {
+            color: #DC3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+        .loading {
+            color: #0088CC;
+            background: rgba(0, 136, 204, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WhatsApp Gateway</h1>
+        <div class="status loading" id="status">Initializing...</div>
+        <div id="qrcode"></div>
+    </div>
+
+    <script>
+        let lastQR = null;
+        let retryCount = 0;
+        const maxRetries = 3;
+
+        function updateStatus(message, type = 'loading') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        function updateQRCode(qr) {
+            if (qr === lastQR) return; // Don't regenerate if QR hasn't changed
+            lastQR = qr;
+
+            const qrcodeDiv = document.getElementById('qrcode');
+            qrcodeDiv.innerHTML = '';
+            
+            QRCode.toString(qr, {
+                width: 256,
+                margin: 4,
+                color: {
+                    dark: '#128C7E',
+                    light: '#FFFFFF'
+                }
+            }, function (error, string) {
+                if (error) {
+                    console.error('QR Code generation error:', error);
+                    updateStatus('Error generating QR code', 'error');
+                } else {
+                    qrcodeDiv.innerHTML = string;
+                }
+            });
+        }
+
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+
+                if (data.data.isAuthenticated) {
+                    updateStatus('WhatsApp Connected!', 'connected');
+                    document.getElementById('qrcode').innerHTML = '';
+                    retryCount = 0;
+                } else if (data.data.qr) {
+                    updateStatus('Scan this QR code with WhatsApp');
+                    updateQRCode(data.data.qr);
+                    retryCount = 0;
+                } else {
+                    updateStatus('Waiting for QR code...');
+                }
+            } catch (error) {
+                console.error('Status check error:', error);
+                retryCount++;
+                if (retryCount >= maxRetries) {
+                    updateStatus('Connection error. Please refresh the page.', 'error');
+                    return;
+                }
+                updateStatus('Checking connection...', 'loading');
+            }
+        }
+
+        // Check status every 3 seconds
+        const statusInterval = setInterval(checkStatus, 3000);
+        
+        // Initial check
+        checkStatus();
+
+        // Cleanup on page unload
+        window.addEventListener('unload', () => {
+            clearInterval(statusInterval);
+        });
+    </script>
+</body>
+</html>
