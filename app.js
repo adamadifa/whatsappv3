@@ -7,8 +7,31 @@ const limiter = require('./src/config/rate-limit');
 const whatsappService = require('./src/services/whatsapp');
 const whatsappRoutes = require('./src/routes/whatsapp.routes');
 
+// Resource Management
+const v8 = require('v8');
+
+// Set memory limit to 800MB (keeping 200MB as safety buffer from 1GB total)
+const memoryLimit = 800 * 1024 * 1024; // 800MB in bytes
+v8.setFlagsFromString('--max-old-space-size=800');
+
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Monitor memory usage
+function checkMemoryUsage() {
+    const used = process.memoryUsage();
+    const heapUsed = Math.round(used.heapUsed / 1024 / 1024);
+    const heapTotal = Math.round(used.heapTotal / 1024 / 1024);
+    
+    if (heapUsed > 700) { // Warning at 700MB
+        logger.warn(`High memory usage - Heap: ${heapUsed}MB / ${heapTotal}MB`);
+    }
+    
+    return heapUsed;
+}
+
+// Check memory every 5 minutes
+setInterval(checkMemoryUsage, 5 * 60 * 1000);
 
 // Middleware untuk parsing JSON
 // Buat direktori logs jika belum ada
