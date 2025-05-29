@@ -25,8 +25,8 @@ function getCpuUsagePercent() {
 
 // Rate limit configuration
 const limiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 30, // limit each IP to 30 requests per minute
+    windowMs: 60 * 1000, // 1 menit
+    max: 30, // maksimal 30 request per menit per IP
     handler: function (req, res) {
         const cpuUsage = getCpuUsagePercent();
         if (cpuUsage > 180) { // If CPU usage is above 180% (90% of 200% limit)

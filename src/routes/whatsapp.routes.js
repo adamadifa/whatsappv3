@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const whatsappService = require('../services/whatsapp');
+const resourceMonitor = require('../utils/resource-monitor');
 
 // Route untuk mendapatkan status dan QR code
 router.get('/status', (req, res) => {
@@ -40,6 +41,21 @@ router.post('/send', async (req, res) => {
             message: error.message
         });
     }
+});
+
+// Endpoint untuk monitoring resource
+router.get('/health', (req, res) => {
+    const status = resourceMonitor.getResourceStatus();
+    res.json({
+        status: 'success',
+        data: {
+            ...status,
+            whatsapp: {
+                connected: whatsappService.isAuthenticated(),
+                hasQR: !!whatsappService.getQR()
+            }
+        }
+    });
 });
 
 module.exports = router;
